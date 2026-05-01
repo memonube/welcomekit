@@ -1,32 +1,32 @@
-// Tweaks panel for direction switching.
+// Tweaks panel — language switcher.
 function TweaksApp() {
   const DEFAULTS = /*EDITMODE-BEGIN*/{
-    "direction": "nimbus"
+    "language": "es"
   }/*EDITMODE-END*/;
   const [tweaks, setTweak] = useTweaks(DEFAULTS);
 
-  // Apply direction class to body
+  // Apply language: set window.__lang, fire event, sync <html lang>
   React.useEffect(() => {
-    document.body.classList.remove("dir-nimbus", "dir-editorial", "dir-terminal");
-    document.body.classList.add("dir-" + tweaks.direction);
-  }, [tweaks.direction]);
+    window.__lang = tweaks.language;
+    document.documentElement.setAttribute("lang", tweaks.language === "pt" ? "pt-BR" : tweaks.language);
+    window.dispatchEvent(new CustomEvent("langchange", { detail: tweaks.language }));
+  }, [tweaks.language]);
 
   return (
     <TweaksPanel title="Tweaks">
-      <TweakSection title="Visual direction">
+      <TweakSection title="Language">
         <TweakRadio
-          value={tweaks.direction}
-          onChange={(v) => setTweak("direction", v)}
+          value={tweaks.language}
+          onChange={(v) => setTweak("language", v)}
           options={[
-            { value: "nimbus", label: "Nimbus Night" },
-            { value: "editorial", label: "Editorial" },
-            { value: "terminal", label: "Terminal" },
+            { value: "es", label: "Español" },
+            { value: "en", label: "English" },
+            { value: "pt", label: "Português" },
           ]}
         />
         <p style={{margin:"10px 0 0",fontSize:11.5,color:"rgba(255,255,255,0.5)",lineHeight:1.45}}>
-          Nimbus Night · gradiente azul + bento (default)<br/>
-          Editorial · blanco, serif italic, mucho aire<br/>
-          Terminal · dark + monospace, full developer
+          Cambia el idioma del Welcome Kit completo. <br/>
+          Latam Spanish · English · Português (BR).
         </p>
       </TweakSection>
     </TweaksPanel>
