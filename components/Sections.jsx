@@ -2,7 +2,26 @@
 const { useState, useEffect, useRef } = React;
 
 function Nav() {
-  const [t] = window.useT();
+  const [t, lang] = window.useT();
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+  const setLang = (v) => {
+    window.__lang = v;
+    document.documentElement.setAttribute("lang", v === "pt" ? "pt-BR" : v);
+    window.dispatchEvent(new CustomEvent("langchange", { detail: v }));
+    setOpen(false);
+  };
+  const langs = [
+    { v: "es", label: "Español" },
+    { v: "en", label: "English" },
+    { v: "pt", label: "Português" },
+  ];
+  const current = langs.find(l => l.v === lang) || langs[0];
   return (
     <nav className="nav">
       <div className="nav__brand">
@@ -16,9 +35,30 @@ function Nav() {
         <a href="#tools">{t("nav.tools")}</a>
         <a href="#support">{t("nav.support")}</a>
       </div>
-      <a className="nav__cta" href="https://partners.tiendanube.com/" target="_blank" rel="noopener">
-        {t("nav.cta")} <Ic.ArrowUR width="14" height="14" />
-      </a>
+      <div className="nav__right">
+        <div className="lang" ref={ref}>
+          <button className="lang__btn" onClick={() => setOpen(o => !o)} aria-haspopup="listbox" aria-expanded={open}>
+            <span className="lang__code">{current.v.toUpperCase()}</span>
+            <span className="lang__label">{current.label}</span>
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" d="M2 3.5l3 3 3-3"/></svg>
+          </button>
+          {open && (
+            <div className="lang__menu" role="listbox">
+              {langs.map(l => (
+                <button key={l.v} role="option" aria-selected={l.v === lang}
+                  className={"lang__opt" + (l.v === lang ? " is-active" : "")}
+                  onClick={() => setLang(l.v)}>
+                  <span className="lang__code">{l.v.toUpperCase()}</span>
+                  <span>{l.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <a className="nav__cta" href="https://partners.tiendanube.com/" target="_blank" rel="noopener">
+          {t("nav.cta")} <Ic.ArrowUR width="14" height="14" />
+        </a>
+      </div>
     </nav>);
 }
 

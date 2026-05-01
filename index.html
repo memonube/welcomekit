@@ -16,13 +16,10 @@
 </head>
 <body class="dir-nimbus">
   <div id="root"></div>
-  <div id="tweaks-root"></div>
 
   <script src="components/i18n.js"></script>
   <script type="text/babel" src="components/Icons.jsx"></script>
   <script type="text/babel" src="components/Sections.jsx"></script>
-  <script type="text/babel" src="tweaks-panel.jsx"></script>
-  <script type="text/babel" src="components/TweaksUI.jsx"></script>
 
   <script type="text/babel">
     function App() {
@@ -40,7 +37,6 @@
       );
     }
     ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-    ReactDOM.createRoot(document.getElementById("tweaks-root")).render(<TweaksApp/>);
   </script>
 </body>
 </html>
