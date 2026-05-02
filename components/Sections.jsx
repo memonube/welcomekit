@@ -4,12 +4,24 @@ const { useState, useEffect, useRef } = React;
 function Nav() {
   const [t, lang] = window.useT();
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const ref = useRef(null);
   useEffect(() => {
     const onClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+  // close mobile menu on resize-to-desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 980) setMenuOpen(false); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  // lock body scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
   const setLang = (v) => {
     window.__lang = v;
     document.documentElement.setAttribute("lang", v === "pt" ? "pt-BR" : v);
@@ -22,18 +34,22 @@ function Nav() {
     { v: "pt", label: "Português" },
   ];
   const current = langs.find(l => l.v === lang) || langs[0];
+  const navLinks = [
+    { href: "#quickstart", k: "nav.start" },
+    { href: "#api",        k: "nav.api" },
+    { href: "#docs",       k: "nav.docs" },
+    { href: "#tools",      k: "nav.tools" },
+    { href: "#support",    k: "nav.support" },
+  ];
   return (
+    <React.Fragment>
     <nav className="nav">
       <div className="nav__brand">
         <img src="assets/logo-tiendanube.png" alt="Tiendanube" className="nav__logo" />
         <span className="pill">Developers</span>
       </div>
       <div className="nav__links">
-        <a href="#quickstart">{t("nav.start")}</a>
-        <a href="#api">{t("nav.api")}</a>
-        <a href="#docs">{t("nav.docs")}</a>
-        <a href="#tools">{t("nav.tools")}</a>
-        <a href="#support">{t("nav.support")}</a>
+        {navLinks.map(l => <a key={l.href} href={l.href}>{t(l.k)}</a>)}
       </div>
       <div className="nav__right">
         <div className="lang" ref={ref}>
@@ -58,8 +74,28 @@ function Nav() {
         <a className="nav__cta" href="https://partners.tiendanube.com/" target="_blank" rel="noopener">
           {t("nav.cta")} <Ic.ArrowUR width="14" height="14" />
         </a>
+        <button className={"nav__burger" + (menuOpen ? " is-open" : "")}
+          aria-label="Menu" aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(o => !o)}>
+          <span></span><span></span><span></span>
+        </button>
       </div>
-    </nav>);
+    </nav>
+    {menuOpen && (
+      <div className="nav__mobile" role="dialog" aria-label="Menu">
+        <div className="nav__mobile-links">
+          {navLinks.map(l => (
+            <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)}>
+              {t(l.k)} <Ic.Arrow width="16" height="16" />
+            </a>
+          ))}
+        </div>
+        <a className="btn btn--primary nav__mobile-cta" href="https://partners.tiendanube.com/" target="_blank" rel="noopener" onClick={() => setMenuOpen(false)}>
+          {t("nav.cta")} <Ic.ArrowUR width="14" height="14" />
+        </a>
+      </div>
+    )}
+    </React.Fragment>);
 }
 
 function Hero() {
@@ -76,7 +112,7 @@ function Hero() {
             </div>
             <h1>
               <span className="sans">{t("hero.title.1")}</span>
-              <span className="serif" style={{ fontSize: "100px" }}>{t("hero.title.2")}</span>
+              <span className="serif hero__h1-serif">{t("hero.title.2")}</span>
               <span className="sans">{t("hero.title.3")}</span>
             </h1>
             <p className="lede">{t("hero.lede")}</p>
