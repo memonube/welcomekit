@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "welcomekit",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "4321", "."],
+      "name": "static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4321"],
       "port": 4321
     }
   ]
